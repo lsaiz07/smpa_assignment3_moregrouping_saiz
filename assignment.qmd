@@ -16,6 +16,7 @@ library(lubridate)
 library(readxl)
 library(writexl)
 library(janitor)
+library(dplyr)
 
 ```
 
@@ -43,6 +44,10 @@ Write your code using grouping in the chunks below to help answer the following 
 1)  How many members in the dataset favor impeachment vs. not (using the `for_impeachment` column)?
 
 ```{r}
+impeach%>%
+  group_by(for_impeachment) %>%
+  summarise(for_impeachment)
+  
 
 
 
@@ -56,9 +61,11 @@ Write your code using grouping in the chunks below to help answer the following 
 You'll want to ensure you do the grouping on both columns together, e.g. `group_by(column1, column2)`
 
 ```{r}
-
-
-
+impeach%>%
+  group_by(for_impeachment, median_income_compared_to_national) %>%
+  summarise(total=n()) 
+  
+  
 
 
 
@@ -71,9 +78,9 @@ You'll want to ensure you do the grouping on both columns together, e.g. `group_
 3)  Now do the same as #2, but this time instead of GDP, group by whether the district is above or below the national average for the percentage of college graduates. The column that captures this information is `pct_bachelors_compared_to_national`.
 
 ```{r}
-
-
-
+impeach%>%
+  group_by(pct_bachelors_compared_to_national) %>%
+  summarise(total=n())
 
 
 
@@ -90,9 +97,9 @@ Instead of counting how many districts are above/below the national average, thi
 In other words, you want to end up with the calculated mean for what that percentage is for the Yes districts and the No districts.
 
 ```{r}
-
-
-
+impeach %>%
+  group_by(for_impeachment) %>%
+  summarise(mean_bachelors = mean(pct_bachelors))
 
 
 
@@ -105,8 +112,9 @@ In other words, you want to end up with the calculated mean for what that percen
 The relevant column for that is `trump_percent`.
 
 ```{r}
-
-
+impeach %>%
+ group_by(for_impeachment) %>%
+  summarise(mean_trump = mean(trump_percent))
 
 
 
@@ -120,7 +128,10 @@ The relevant column for that is `trump_percent`.
 6)  Filter out only the members who are a yes for impeachment. Then of those "Yes" member, how many won their 2018 election by less than 5 percentage points (`margin_flag_2018`) vs. more?
 
 ```{r}
-
+impeach %>%
+  group_by(margin_flag_2018) %>%
+  filter(for_impeachment == "YES") %>%
+  summarise(total=n())
   
 
 
@@ -131,11 +142,19 @@ The relevant column for that is `trump_percent`.
 
 ```
 
-7)  Come up with another breakdown of your choosing for how you'd like to examine this dataset. Say what you'll look at, and then put the code below to find the answer.
+7)  Come up with another breakdown of your choosing for how you'd like to examine this dataset. Say what you'll look at, and then put the code below to find the answer.  
+
+Im looking for the date anounced by each member of congress who voted "YES" 
+
+n()=count function
 
 ```{r}
 
-  
+impeach %>%
+  group_by(date_announced) %>%
+  filter(for_impeachment == "YES")%>%
+  summarise(total=n())
+
 
 
 
@@ -149,8 +168,17 @@ The relevant column for that is `trump_percent`.
   
 Use the mutate() function to create two new columns: one that extracts the year from date_announced, and a second that extracts the month.
 
+group_by(for_impeachment, date_announced) %>%
+  summarise(total=n()) %>%
+  filter(for_impeachment == "YES")%>%
+  arrange(desc(total)) %>%
+  ()
+
 ```{r}
 
+  impeach %>%
+  mutate(Date_Year = year(date_announced)) %>%
+  mutate(Month_Year = month(date_announced))
   
 
 
@@ -164,9 +192,11 @@ Use the mutate() function to create two new columns: one that extracts the year 
 8) Using the new columns you created in #7, use grouping to count up how many House Democrats during each month announced their support of impeachment.
 
 ```{r}
-
+impeach %>%
+  group_by(Month_Year) %>%
+  filter(for_impeachment == "YES") %>%
+  summarise(total=n())
   
-
 
 
 
